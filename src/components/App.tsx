@@ -1,6 +1,6 @@
 // vendor imports
 import axios from "axios";
-import { Heading, Grommet, Text, Button } from "grommet";
+import { Heading, Grommet, Button } from "grommet";
 import React from "react";
 
 // local imports
@@ -12,9 +12,16 @@ function App() {
   // State vars
   const [isBusy, setBusy] = React.useState<boolean>(true);
   const [status, setStatus] = React.useState<IStatusData | null>(null);
+  const [apiError, setApiError] = React.useState<boolean>(false);
 
   const pollStatus = React.useCallback(async () => {
-    setStatus((await axios.get("/api/status")).data);
+    try {
+      const response = await axios.get("/api/status");
+      setStatus(response.data);
+      setApiError(false);
+    } catch {
+      setApiError(true);
+    }
   }, []);
 
   const pollStatusSynchronous = React.useCallback(() => {
@@ -62,8 +69,10 @@ function App() {
 
   return (
     <Grommet theme={customTheme}>
-      {status === null ? (
-        <Text>Loading...</Text>
+      {apiError ? (
+        <Heading>API Error. Check docker container log.</Heading>
+      ) : status === null ? (
+        <Heading>Loading...</Heading>
       ) : (
         <>
           {status.device === null ? (
