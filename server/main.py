@@ -14,6 +14,9 @@ import gevent.pywsgi
 from werkzeug.serving import run_with_reloader
 from werkzeug.debug import DebuggedApplication
 
+# local imports
+import api
+
 
 # Define the static directory in relation to this file
 staticDir = str((pathlib.Path(__file__).parent / ".." / "build").resolve())
@@ -32,6 +35,9 @@ def createApp():
     )
     app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2 megabytes, fyi
     app.config["DEBUG"] = os.environ.get("FLASK_DEBUG", "").lower() == "true"
+
+    # Register the API blueprint
+    app.register_blueprint(api.createBlueprint())
 
     # THIS ROUTE COMES LAST
     # Any route that doesn't go to an actual file will return the index
